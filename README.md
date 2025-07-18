@@ -1,1 +1,3 @@
-# HDRChanllegne_y2
+# HDR ML Chanllegne year 2: Scientific Modeling out of distribution (Scientific-Mood)
+
+Supporting code for the HDR ML Challenge
