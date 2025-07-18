@@ -29,12 +29,12 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
     h5netcdf \
     scipy \
     xarray \
-    tensorflow[and-cuda] \
+    tensorflow[and-cuda] && \
+    pip3 install --no-cache-dir \
     torch \
     torchvision \
     torchaudio \
     --index-url https://download.pytorch.org/whl/cu121
-
 # Set the default command to Python3
 CMD ["python3"]
 
