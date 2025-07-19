@@ -39,10 +39,10 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
 CMD ["python3"]
 
 # To build image from docker file
-# docker build -t fair_universe --platform linux/amd64 .
+# docker build -t hdr_images --platform linux/amd64 .
 
 # To run this image
-# docker run -it fair_universe
+# docker run -it hdr_images
 
 # get container id from running image
 # then exec with the following command
@@ -53,7 +53,7 @@ CMD ["python3"]
 
 
 # tag your image
-# docker tag fair_universe ihsaanullah/fair_universe:latest
+# docker tag hdr_images ytchou97/hdr_images:latest
 
 # push image
-# docker push ihsaanullah/fair_universe:latest
+# docker push ytchou97/hdr_images:latest
