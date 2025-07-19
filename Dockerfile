@@ -29,7 +29,6 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
     h5netcdf \
     scipy \
     xarray \
-    huggingface_hub \
     tensorflow[and-cuda] && \
     pip3 install --no-cache-dir \
     torch \
