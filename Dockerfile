@@ -38,7 +38,6 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
 # Set the default command to Python3
 CMD ["python3"]
 
-
 # To build image from docker file
 # docker build -t fair_universe --platform linux/amd64 .
 
