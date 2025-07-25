@@ -11,8 +11,9 @@ prediction_dir = os.path.join(input_dir, 'res')
 # Directory to output computed score into
 output_dir = sys.argv[2]
 
+
 def read_prediction():
-    prediction_file = os.path.join(prediction_dir,'test.predictions')
+    prediction_file = os.path.join(prediction_dir, 'test.predictions')
 
     # Check if file exists
     if not os.path.isfile(prediction_file):
@@ -20,11 +21,10 @@ def read_prediction():
         print(prediction_file)
         return
 
-
     f = open(prediction_file, "r")
 
     predicted_scores = f.read().splitlines()
-    predicted_scores = np.array(predicted_scores,dtype=float)
+    predicted_scores = np.array(predicted_scores, dtype=float)
     print(predicted_scores)
 
     return predicted_scores
@@ -41,15 +41,16 @@ def read_solution():
         return
 
     test_labels = np.load(solution_file)['ids']
-    
+
     return test_labels
 
 
-def save_score(TNR):
+def save_score(MSE, Rsquared):
     score_file = os.path.join(output_dir, 'scores.json')
 
     scores = {
-        'TNR': TNR,
+        'MSE': MSE,
+        'Rsquared': Rsquared,
     }
     with open(score_file, 'w') as f_score:
         f_score.write(json.dumps(scores))
@@ -58,11 +59,10 @@ def save_score(TNR):
 
 def print_pretty(text):
     print("-------------------")
-    print("#---",text)
+    print("#---", text)
     print("-------------------")
 
 
-    
 def main():
 
     # Read prediction and solution
@@ -75,8 +75,8 @@ def main():
     tp = np.sum(np.logical_and(prediction == 1, solution == 1))
     tn = np.sum(np.logical_and(prediction == 0, solution == 0))
     fp = np.sum(np.logical_and(prediction == 1, solution == 0))
-    fn = np.sum(np.logical_and(prediction == 0, solution == 1))   
-    TNR = tn / (fp + tn) 
+    fn = np.sum(np.logical_and(prediction == 0, solution == 1))
+    TNR = tn / (fp + tn)
     print("TNR: ", TNR)
 
     # Avoid TNR = NaN
