@@ -1,3 +1,13 @@
+"""
+Neural Signal Forecasting Scoring Module
+
+This module evaluates prediction performance using Mean Squared Error (MSE) 
+across multiple datasets including public (affi, beignet) and private datasets.
+
+Date: 2025-07-28
+Version: 0.1
+"""
+
 import sys
 import os
 import json
@@ -14,7 +24,19 @@ output_dir = sys.argv[2]
 
 
 def calculate_mse(array1, array2):
-    """Calculate MSE between two arrays of the same shape"""
+    """
+    Calculate MSE between two arrays of the same shape.
+
+    Args:
+        array1: First array for comparison
+        array2: Second array for comparison
+
+    Returns:
+        float: Mean Squared Error value
+
+    Raises:
+        ValueError: If arrays have different shapes
+    """
     if array1.shape != array2.shape:
         raise ValueError(
             f"Shapes don't match: {array1.shape} vs {array2.shape}")
@@ -31,6 +53,15 @@ def calculate_mse(array1, array2):
 
 
 def read_prediction(dataset_name):
+    """
+    Read prediction file for a given dataset.
+
+    Args:
+        dataset_name: Name of the dataset
+
+    Returns:
+        np.ndarray: Prediction array or None if file not found
+    """
     prediction_file = os.path.join(
         prediction_dir, f'test_{dataset_name}.predictions.npz')
 
@@ -46,6 +77,15 @@ def read_prediction(dataset_name):
 
 
 def read_solution(dataset_name):
+    """
+    Read solution file for a given dataset.
+
+    Args:
+        dataset_name: Name of the dataset
+
+    Returns:
+        np.ndarray: Solution array or None if file not found
+    """
     solution_file = os.path.join(solutions, f'test_data_{dataset_name}.npz')
 
     # Check if file exists
@@ -58,8 +98,19 @@ def read_solution(dataset_name):
     return test_array
 
 
-def save_score(MSE_affi, MSE_beignet, MSE_affi_private, MSE_beignet_private_1, MSE_beignet_private_2,
-               total_MSR):
+def save_score(MSE_affi, MSE_beignet, MSE_affi_private,
+               MSE_beignet_private_1, MSE_beignet_private_2, total_MSR):
+    """
+    Save all MSE scores to a JSON file.
+
+    Args:
+        MSE_affi: MSE score for affi dataset
+        MSE_beignet: MSE score for beignet dataset
+        MSE_affi_private: MSE score for affi private dataset
+        MSE_beignet_private_1: MSE score for beignet private dataset 1
+        MSE_beignet_private_2: MSE score for beignet private dataset 2
+        total_MSR: Average MSE across all datasets
+    """
     score_file = os.path.join(output_dir, 'scores.json')
 
     # Create a dictionary of scores
@@ -78,13 +129,19 @@ def save_score(MSE_affi, MSE_beignet, MSE_affi_private, MSE_beignet_private_1, M
 
 
 def print_pretty(text):
+    """Print formatted section header."""
     print("-------------------")
     print("#---", text)
     print("-------------------")
 
 
 def main():
+    """
+    Main function to evaluate predictions across all datasets.
 
+    Reads predictions and solutions for all datasets, computes MSE scores,
+    and saves the results to a JSON file.
+    """
     # Read prediction and solution
     print_pretty('Reading prediction')
     prediction_affi = read_prediction('affi')
