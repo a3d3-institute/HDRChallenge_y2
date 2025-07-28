@@ -19,18 +19,15 @@ sys.path.append(output_dir)
 sys.path.append(submission_dir)
 
 
-def load_dataset():
+def load_dataset(filename):
     """
     filenames: load test dataset
     return:
     test_data: samples to test with shape (num_samples, num_timestep, num_channels, num_bands)
     """
-    filename = 'beignet'
-    lfp_array = np.load(f'lfp_{filename}.npy')
-    indices = np.load(f'tvts_{filename}_split.npz')
-    testing_index = indices['testing_index']
-    test_data = lfp_array[testing_index]
-
+    test_file = os.path.join(input_dir, filename)
+    # Open the file and load the data
+    test_data = np.load(test_file)['arr_0']
     return test_data
 
 
@@ -74,10 +71,11 @@ def print_pretty(text):
     print("-------------------")
 
 
-def save_prediction(prediction_nparray):
+def save_prediction(prediction_nparray, dataset_name):
 
-    # Save the 3 dim nparray to a file
-    np.save(os.path.join(output_dir, 'test.predictions'), prediction_nparray)
+    # Save the prediction to a npz file
+    np.savez(os.path.join(
+        output_dir, f'test_{dataset_name}.predictions'), prediction_nparray)
 
 
 def main():
@@ -100,20 +98,43 @@ def main():
     start = time.time()
 
     print_pretty('Reading Data')
-    X_test = load_dataset()
+    affi_test = load_dataset('test_data_affi.npz')
+    beignet_test = load_dataset('test_data_beignet.npz')
+    affi_test_private = load_dataset('test_data_affi_2024-03-20_private.npz')
+    beignet_test_private_1 = load_dataset(
+        'test_data_beignet_2022-06-01_private.npz')
+    beignet_test_private_2 = load_dataset(
+        'test_data_beignet_2022-06-02_private.npz')
 
     print_pretty('Loading trained Model')
     m = Model()
     m.load()
 
     print_pretty('Making Prediction')
-    prediction_array = m.predict(X_test)
+    print(affi_test[0])
+    prediction_affi = m.predict(affi_test)
+    print(prediction_affi[0])
+    prediction_beignet = m.predict(beignet_test)
+    prediction_affi_private = m.predict(affi_test_private)
+    prediction_beignet_private_1 = m.predict(beignet_test_private_1)
+    prediction_beignet_private_2 = m.predict(beignet_test_private_2)
 
     print_pretty('Saving Prediction')
-    save_prediction(prediction_array)
+    save_prediction(prediction_affi, 'affi')
+    save_prediction(prediction_beignet, 'beignet')
+    save_prediction(prediction_affi_private, 'affi_private')
+    save_prediction(prediction_beignet_private_1, 'beignet_private_1')
+    save_prediction(prediction_beignet_private_2, 'beignet_private_2')
 
     duration = time.time() - start
     print_pretty(f'Total duration: {duration}')
+
+    # Compare affi_test and prediction_affi and check if they are the same with np
+    print(np.array_equal(affi_test, prediction_affi))
+    print(np.array_equal(beignet_test, prediction_beignet))
+    print(np.array_equal(affi_test_private, prediction_affi_private))
+    print(np.array_equal(beignet_test_private_1, prediction_beignet_private_1))
+    print(np.array_equal(beignet_test_private_2, prediction_beignet_private_2))
 
 
 if __name__ == '__main__':
