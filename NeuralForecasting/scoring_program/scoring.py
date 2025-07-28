@@ -21,7 +21,7 @@ def calculate_mse(array1, array2):
 
     # Convert to tensors if needed
     # 10 steps are the initial steps as input for the model
-    # Remove the first 10 steps from the prediction and solution
+    # Remove the first 10 steps from the score calculation
     array1 = torch.tensor(array1[:, 10:])
     array2 = torch.tensor(array2[:, 10:])
 

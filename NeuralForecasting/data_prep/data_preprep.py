@@ -1,15 +1,12 @@
 import numpy as np
 import os
 import pickle
+import torch
 
 
 def load_dataset(filename):
     """
     filenames: choice from beignet or affi to load corresponding dataset
-    return:
-    training_data: samples to train with shape (num_samples, num_timestep, num_channels, num_bands)
-    test_data: samples to test with shape (num_samples, num_timestep, num_channels, num_bands)
-    val_data: samples to train with shape (num_samples, num_timestep, num_channels, num_bands)
     """
     if filename == 'affi' or filename == 'beignet':
         lfp_array = np.load(f'lfp_{filename}.npy')
@@ -27,60 +24,56 @@ def load_dataset(filename):
         raise NotImplementedError('No such a dataset')
 
 
-# Public dataset
-train_data_affi, test_data_affi, val_data_affi = load_dataset(
-    'affi')  # B * T * C * F
+def prepare_masked_data(data, init_steps=10):
+    """
+    data: numpy array of shape (num_samples, num_timestep, num_channels, num_bands)
+    init_steps: number of initial steps to use as input
+    return: numpy array of shape (num_samples, num_timestep, num_channels, num_bands)
+    """
 
-# Print the shape of the data
-print(train_data_affi.shape)
-print(test_data_affi.shape)
-print(val_data_affi.shape)
+    # Convert to tensor
+    test_data_tensor = torch.tensor(data)
+    future_step = data.shape[1] - init_steps
+    test_data_tensor = torch.cat([test_data_tensor[:, :init_steps], torch.repeat_interleave(test_data_tensor[:, init_steps-1:init_steps],
+                                                                                            future_step, dim=1)], dim=1)
+    # convert back to numpy
+    test_data_tensor = test_data_tensor.numpy()
 
+    return test_data_tensor
+
+
+def process_public_dataset(filename):
+    """
+    filename: choice from affi or beignet to load corresponding dataset
+    """
+
+    # Public dataset
+    train_data, test_data, val_data = load_dataset(
+        filename)  # B * T * C * F
+
+    test_data_masked = prepare_masked_data(test_data)
+    val_data_masked = prepare_masked_data(val_data)
 # Print fraction of train / test / val to total data
-print(
-    f"Fraction of train data: {len(train_data_affi) / (len(train_data_affi) + len(test_data_affi) + len(val_data_affi)):.2f}")
-print(
-    f"Fraction of test data: {len(test_data_affi) / (len(train_data_affi) + len(test_data_affi) + len(val_data_affi)):.2f}")
-print(
-    f"Fraction of val data: {len(val_data_affi) / (len(train_data_affi) + len(test_data_affi) + len(val_data_affi)):.2f}")
+    print(
+        f"Fraction of train data: {len(train_data) / (len(train_data) + len(test_data) + len(val_data)):.2f}")
+    print(
+        f"Fraction of test data: {len(test_data) / (len(train_data) + len(test_data) + len(val_data)):.2f}")
+    print(
+        f"Fraction of val data: {len(val_data) / (len(train_data) + len(test_data) + len(val_data)):.2f}")
 
-
-# Save the data to a file only if the file does not exist
-np.savez('./postprocessed_dataset/train_data_affi.npz', train_data_affi)
-np.savez('./postprocessed_dataset/test_data_affi.npz', test_data_affi)
-np.savez('./postprocessed_dataset/val_data_affi.npz', val_data_affi)
-
-
-train_data_beignet, test_data_beignet, val_data_beignet = load_dataset(
-    'beignet')  # B * T * C * F
-
-# Print the shape of the data
-print(train_data_beignet.shape)
-print(test_data_beignet.shape)
-print(val_data_beignet.shape)
-
-# Print fraction of train / test / val to total data
-print(
-    f"Fraction of train data: {len(train_data_beignet) / (len(train_data_beignet) + len(test_data_beignet) + len(val_data_beignet)):.2f}")
-print(
-    f"Fraction of test data: {len(test_data_beignet) / (len(train_data_beignet) + len(test_data_beignet) + len(val_data_beignet)):.2f}")
-print(
-    f"Fraction of val data: {len(val_data_beignet) / (len(train_data_beignet) + len(test_data_beignet) + len(val_data_beignet)):.2f}")
-
-
-# Save the data to a file only if the file does not exist
-np.savez('./postprocessed_dataset/train_data_beignet.npz', train_data_beignet)
-np.savez('./postprocessed_dataset/test_data_beignet.npz', test_data_beignet)
-np.savez('./postprocessed_dataset/val_data_beignet.npz', val_data_beignet)
+    # Save the data to a file only if the file does not exist
+    np.savez(f'./postprocessed_dataset/train_data_{filename}.npz', train_data)
+    np.savez(f'./postprocessed_dataset/test_data_{filename}.npz', test_data)
+    np.savez(f'./postprocessed_dataset/val_data_{filename}.npz', val_data)
+    np.savez(f'./postprocessed_dataset/test_data_{filename}_masked.npz',
+             test_data_masked)
+    np.savez(f'./postprocessed_dataset/val_data_{filename}_masked.npz',
+             val_data_masked)
 
 
 def process_private_dataset(filename):
     """
     filename: choice from beignet or affi to load corresponding dataset
-    return:
-    train_data: samples to train with shape (num_samples, num_timestep, num_channels, num_bands)
-    test_data: samples to test with shape (num_samples, num_timestep, num_channels, num_bands)
-    val_data: samples to train with shape (num_samples, num_timestep, num_channels, num_bands)
     """
 
     # Grab data name from filename
@@ -114,6 +107,9 @@ def process_private_dataset(filename):
         print(test_data.shape)
         print(val_data.shape)
 
+        test_data_masked = prepare_masked_data(test_data)
+        val_data_masked = prepare_masked_data(val_data)
+
         # Print fraction of train / test / val to total data
         print(
             f"Fraction of train data: {len(train_data) / (len(train_data) + len(test_data) + len(val_data)):.2f}")
@@ -129,9 +125,17 @@ def process_private_dataset(filename):
             f'./postprocessed_dataset/test_data_{data_name}_{data_date}_private.npz', test_data)
         np.savez(
             f'./postprocessed_dataset/val_data_{data_name}_{data_date}_private.npz', val_data)
+        np.savez(
+            f'./postprocessed_dataset/test_data_{data_name}_{data_date}_private_masked.npz', test_data_masked)
+        np.savez(
+            f'./postprocessed_dataset/val_data_{data_name}_{data_date}_private_masked.npz', val_data_masked)
 
 
 if __name__ == "__main__":
+
+    # Process public datasets
+    process_public_dataset('affi')
+    process_public_dataset('beignet')
 
     # Process private datasets
     process_private_dataset('beignet_2022-06-02_5423_subset.pkl')
