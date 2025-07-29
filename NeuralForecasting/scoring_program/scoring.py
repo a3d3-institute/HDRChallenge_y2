@@ -151,11 +151,14 @@ def main():
     prediction_beignet_private_2 = read_prediction('beignet_private_2')
 
     print_pretty('Reading solution')
-    solution_affi = read_solution('affi')
-    solution_beignet = read_solution('beignet')
-    solution_affi_private = read_solution('affi_2024-03-20_private')
-    solution_beignet_private_1 = read_solution('beignet_2022-06-01_private')
-    solution_beignet_private_2 = read_solution('beignet_2022-06-02_private')
+    solution_affi = read_solution('affi')[:, :, :, 0]
+    solution_beignet = read_solution('beignet')[:, :, :, 0]
+    solution_affi_private = read_solution(
+        'affi_2024-03-20_private')[:, :, :, 0]
+    solution_beignet_private_1 = read_solution(
+        'beignet_2022-06-01_private')[:, :, :, 0]
+    solution_beignet_private_2 = read_solution(
+        'beignet_2022-06-02_private')[:, :, :, 0]
 
     # Compute MSE
     print_pretty('Computing MSE score')
@@ -171,6 +174,7 @@ def main():
     # Compute the total MSE
     total_MSR = (MSE_affi + MSE_beignet + MSE_affi_private +
                  MSE_beignet_private_1 + MSE_beignet_private_2) / 5
+
     # Write Score
     print_pretty('Saving prediction')
     save_score(MSE_affi, MSE_beignet, MSE_affi_private,

@@ -125,22 +125,29 @@ def main():
         'test_data_beignet_2022-06-02_private_masked.npz')
 
     print_pretty('Loading trained Model')
-    m = Model()
-    m.load()
+    m_affi = Model('affi')
+    m_affi.load()
 
-    print_pretty('Making Prediction')
-    # Generate predictions for all datasets
-    prediction_affi = m.predict(affi_test)
-    prediction_beignet = m.predict(beignet_test)
-    prediction_affi_private = m.predict(affi_test_private)
-    prediction_beignet_private_1 = m.predict(beignet_test_private_1)
-    prediction_beignet_private_2 = m.predict(beignet_test_private_2)
+    print_pretty('Making Prediction for affi')
+    # Generate predictions for affi datasets
+    prediction_affi = m_affi.predict(affi_test)
+    prediction_affi_private = m_affi.predict(affi_test_private)
 
-    print_pretty('Saving Prediction')
-    # Save all predictions
+    print_pretty('Saving Prediction for affi')
+    # Save affi predictions
     save_prediction(prediction_affi, 'affi')
-    save_prediction(prediction_beignet, 'beignet')
     save_prediction(prediction_affi_private, 'affi_private')
+
+    m_beignet = Model('beignet')
+    m_beignet.load()
+
+    print_pretty('Making Prediction for beignet')
+    prediction_beignet = m_beignet.predict(beignet_test)
+    prediction_beignet_private_1 = m_beignet.predict(beignet_test_private_1)
+    prediction_beignet_private_2 = m_beignet.predict(beignet_test_private_2)
+
+    print_pretty('Saving Prediction for beignet')
+    save_prediction(prediction_beignet, 'beignet')
     save_prediction(prediction_beignet_private_1, 'beignet_private_1')
     save_prediction(prediction_beignet_private_2, 'beignet_private_2')
 
