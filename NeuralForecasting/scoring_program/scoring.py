@@ -39,7 +39,11 @@ def calculate_mse(array1, array2):
     """
     if array1.shape != array2.shape:
         raise ValueError(
-            f"Shapes don't match: {array1.shape} vs {array2.shape}")
+            f"Shapes don't match: {array1.shape} vs {array2.shape}. "
+            f"The model should return an array of shape "
+            f"(Sample_size * 20 * Channel). "
+            f"The first 10 steps are the initial steps as input for the model"
+            f"Will not use for scoring")
 
     # Convert to tensors if needed
     # 10 steps are the initial steps as input for the model
@@ -142,6 +146,7 @@ def main():
     Reads predictions and solutions for all datasets, computes MSE scores,
     and saves the results to a JSON file.
     """
+
     # Read prediction and solution
     print_pretty('Reading prediction')
     prediction_affi = read_prediction('affi')

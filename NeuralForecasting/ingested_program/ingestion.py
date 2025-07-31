@@ -1,4 +1,3 @@
-from model import Model
 import sys
 import subprocess
 import os
@@ -114,6 +113,9 @@ def main():
     start = time.time()
 
     print_pretty('Reading Data')
+    # Import Model after paths are set up
+    from model import Model
+
     # Load all test datasets
     affi_test = load_dataset('test_data_affi_masked.npz')
     beignet_test = load_dataset('test_data_beignet_masked.npz')
@@ -157,4 +159,5 @@ def main():
 
 
 if __name__ == '__main__':
+
     main()
