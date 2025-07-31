@@ -52,6 +52,8 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
 RUN R -e "install.packages('remotes', repos='https://cloud.r-project.org', Ncpus = parallel::detectCores())" && \
     R -e "remotes::install_github('eco4cast/score4cast', dependencies=TRUE, upgrade='never', Ncpus = parallel::detectCores())"
 
+CMD ["python3"]
+
 # To build image from docker file
 # docker build -t hdr_images --platform linux/amd64 .
 
